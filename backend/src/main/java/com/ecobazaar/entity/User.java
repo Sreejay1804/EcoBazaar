@@ -35,6 +35,14 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    public enum Role {
+        BUYER, SELLER, ADMIN
+    }
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.BUYER;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -104,5 +112,12 @@ public class User {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-}
 
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+}

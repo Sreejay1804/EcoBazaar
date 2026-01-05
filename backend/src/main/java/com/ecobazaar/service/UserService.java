@@ -42,13 +42,18 @@ public class UserService {
         user.setUsername(signupRequest.getUsername());
         user.setEmail(signupRequest.getEmail());
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
-
+        // Set role from request, default to BUYER if invalid
+        try {
+            user.setRole(User.Role.valueOf(signupRequest.getRole().toUpperCase()));
+        } catch (Exception e) {
+            user.setRole(User.Role.BUYER);
+        }
         user = userRepository.save(user);
 
-        // Generate JWT token
-        String token = jwtUtil.generateToken(user.getUsername());
+        // Generate JWT token with role
+        String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
 
-        return new AuthResponse(token, user.getUsername(), "User registered successfully");
+        return new AuthResponse(token, user.getUsername(), user.getRole().name(), "User registered successfully");
     }
 
     public AuthResponse login(LoginRequest loginRequest) {
@@ -65,10 +70,9 @@ public class UserService {
             throw new RuntimeException("Invalid username or password");
         }
 
-        // Generate JWT token
-        String token = jwtUtil.generateToken(user.getUsername());
+        // Generate JWT token with role
+        String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
 
-        return new AuthResponse(token, user.getUsername(), "Login successful");
+        return new AuthResponse(token, user.getUsername(), user.getRole().name(), "Login successful");
     }
 }
-

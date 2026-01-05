@@ -24,20 +24,34 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String username) {
+    /* ================= TOKEN GENERATION ================= */
+
+    public String generateToken(String username, String role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
                 .subject(username)
+                .claim("role", role)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(getSigningKey())
                 .compact();
     }
 
+    // Default role
+    public String generateToken(String username) {
+        return generateToken(username, "BUYER");
+    }
+
+    /* ================= CLAIM EXTRACTION ================= */
+
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
+    }
+
+    public String getRoleFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.get("role", String.class));
     }
 
     public Date getExpirationDateFromToken(String token) {
@@ -49,6 +63,8 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
 
+    /* ================= TOKEN PARSING (FIXED) ================= */
+
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
@@ -57,14 +73,14 @@ public class JwtUtil {
                 .getPayload();
     }
 
+    /* ================= VALIDATION ================= */
+
     public Boolean isTokenExpired(String token) {
-        final Date expiration = getExpirationDateFromToken(token);
-        return expiration.before(new Date());
+        return getExpirationDateFromToken(token).before(new Date());
     }
 
     public Boolean validateToken(String token, String username) {
         final String tokenUsername = getUsernameFromToken(token);
-        return (tokenUsername.equals(username) && !isTokenExpired(token));
+        return tokenUsername.equals(username) && !isTokenExpired(token);
     }
 }
-
