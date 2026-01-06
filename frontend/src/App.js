@@ -131,6 +131,7 @@ function SignupForm({ onSuccess }) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('BUYER');
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -156,7 +157,7 @@ function SignupForm({ onSuccess }) {
 
     try {
       setLoading(true);
-      const data = await signup({ username, email, password });
+      const data = await signup({ username, email, password, role });
       if (data.token) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('username', data.username || username);
@@ -207,6 +208,19 @@ function SignupForm({ onSuccess }) {
           placeholder="Create a strong password"
         />
         {errors.password && <p className="error-text">{errors.password}</p>}
+      </div>
+      <div className="field">
+        <label htmlFor="signup-role">Role</label>
+        <select
+          id="signup-role"
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          className="field-select"
+        >
+          <option value="BUYER">Buyer</option>
+          <option value="SELLER">Seller</option>
+          <option value="ADMIN">Admin</option>
+        </select>
       </div>
       <button type="submit" className="primary-btn" disabled={loading}>
         {loading ? 'Creating account...' : 'Create account'}

@@ -118,6 +118,31 @@
   color: #9ca3af;
 }
 
+.field-select {
+  border-radius: 0.8rem;
+  border: 1px solid #e5e7eb;
+  padding: 0.55rem 0.8rem;
+  font-size: 0.9rem;
+  outline: none;
+  background: #ffffff;
+  color: #0f172a;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.field-select:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 1px rgba(22, 163, 74, 0.22);
+  background: #f9fafb;
+}
+
+.field-select:hover {
+  border-color: #d1d5db;
+}
+
 .primary-btn {
   width: 100%;
   border-radius: 999px;

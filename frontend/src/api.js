@@ -1,12 +1,12 @@
 const API_BASE_URL = 'http://localhost:8080';
 
-export async function signup({ username, email, password }) {
+export async function signup({ username, email, password, role = 'BUYER' }) {
   const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ username, email, password }),
+    body: JSON.stringify({ username, email, password, role }),
   });
 
   const data = await response.json().catch(() => ({}));
