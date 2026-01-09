@@ -1,6 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import { login, signup } from './api';
+import { 
+  getToken, 
+  setToken, 
+  removeToken, 
+  setUsername, 
+  setRole, 
+  getRole,
+  isTokenValid,
+  getTokenExpirationTime,
+  getRoleFromToken
+} from './utils/tokenUtils';
+import BuyerDashboard from './components/BuyerDashboard';
+import SellerDashboard from './components/SellerDashboard';
+import AdminDashboard from './components/AdminDashboard';
 
 function validateEmail(email) {
   if (!email) return 'Email is required';
@@ -82,8 +96,11 @@ function LoginForm({ onSuccess }) {
       setLoading(true);
       const data = await login({ username, password });
       if (data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('username', data.username || username);
+        setToken(data.token);
+        setUsername(data.username || username);
+        if (data.role) {
+          setRole(data.role);
+        }
       }
       if (onSuccess) onSuccess(data);
     } catch (error) {
@@ -159,8 +176,11 @@ function SignupForm({ onSuccess }) {
       setLoading(true);
       const data = await signup({ username, email, password, role });
       if (data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('username', data.username || username);
+        setToken(data.token);
+        setUsername(data.username || username);
+        if (data.role) {
+          setRole(data.role);
+        }
       }
       if (onSuccess) onSuccess(data);
     } catch (error) {
@@ -231,15 +251,79 @@ function SignupForm({ onSuccess }) {
 
 function App() {
   const [activeTab, setActiveTab] = useState('login');
-  const [welcomeMessage, setWelcomeMessage] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState(null);
 
-  function handleAuthSuccess(data) {
-    setWelcomeMessage(data.message || 'Authenticated successfully');
+  // Check authentication status on mount and periodically
+  useEffect(() => {
+    const token = getToken();
+    if (token && isTokenValid()) {
+      // Try to get role from storage, otherwise decode from token
+      let role = getRole();
+      if (!role) {
+        role = getRoleFromToken(token);
+        if (role) {
+          setRole(role);
+        }
+      }
+      setIsAuthenticated(true);
+      setUserRole(role);
+    } else {
+      removeToken();
+      setIsAuthenticated(false);
+      setUserRole(null);
+    }
+    
+    // Check token expiration every minute
+    const interval = setInterval(() => {
+      if (!isTokenValid()) {
+        removeToken();
+        setIsAuthenticated(false);
+        setUserRole(null);
+      }
+    }, 60000); // Check every minute
+
+    return () => clearInterval(interval);
+  }, []);
+
+  function checkAuthStatus() {
+    const token = getToken();
+    if (token && isTokenValid()) {
+      const role = getRole();
+      setIsAuthenticated(true);
+      setUserRole(role);
+    } else {
+      handleLogout();
+    }
   }
 
+  function handleAuthSuccess(data) {
+    setIsAuthenticated(true);
+    if (data.role) {
+      setUserRole(data.role);
+    }
+  }
+
+  function handleLogout() {
+    removeToken();
+    setIsAuthenticated(false);
+    setUserRole(null);
+  }
+
+  // If authenticated, show appropriate dashboard
+  if (isAuthenticated) {
+    if (userRole === 'BUYER') {
+      return <BuyerDashboard onLogout={handleLogout} />;
+    } else if (userRole === 'SELLER') {
+      return <SellerDashboard onLogout={handleLogout} />;
+    } else if (userRole === 'ADMIN') {
+      return <AdminDashboard onLogout={handleLogout} />;
+    }
+  }
+
+  // Show login/signup if not authenticated
   return (
     <AuthLayout activeTab={activeTab} setActiveTab={setActiveTab}>
-      {welcomeMessage && <div className="alert success">{welcomeMessage}</div>}
       {activeTab === 'login' ? (
         <LoginForm onSuccess={handleAuthSuccess} />
       ) : (
