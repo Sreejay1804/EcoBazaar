@@ -176,4 +176,202 @@ export async function deleteProfile() {
   }
 }
 
+// Product API calls
+export async function createProduct(productData) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/seller/products`, {
+      method: 'POST',
+      headers: getHeaders(true),
+      body: JSON.stringify(productData),
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+      throw new Error('Unable to connect to server. Please ensure the backend is running on http://localhost:8080');
+    }
+    throw error;
+  }
+}
+
+export async function getSellerProducts() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/seller/products`, {
+      method: 'GET',
+      headers: getHeaders(true),
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+      throw new Error('Unable to connect to server. Please ensure the backend is running on http://localhost:8080');
+    }
+    throw error;
+  }
+}
+
+export async function getApprovedProducts() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/buyer/products`, {
+      method: 'GET',
+      headers: getHeaders(true),
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+      throw new Error('Unable to connect to server. Please ensure the backend is running on http://localhost:8080');
+    }
+    throw error;
+  }
+}
+
+export async function getProduct(productId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/buyer/products/${productId}`, {
+      method: 'GET',
+      headers: getHeaders(true),
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+      throw new Error('Unable to connect to server. Please ensure the backend is running on http://localhost:8080');
+    }
+    throw error;
+  }
+}
+
+// Admin API calls
+export async function getPendingProducts() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/products/pending`, {
+      method: 'GET',
+      headers: getHeaders(true),
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+      throw new Error('Unable to connect to server. Please ensure the backend is running on http://localhost:8080');
+    }
+    throw error;
+  }
+}
+
+export async function approveProduct(productId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/products/${productId}/approve`, {
+      method: 'POST',
+      headers: getHeaders(true),
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+      throw new Error('Unable to connect to server. Please ensure the backend is running on http://localhost:8080');
+    }
+    throw error;
+  }
+}
+
+export async function rejectProduct(productId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/products/${productId}/reject`, {
+      method: 'POST',
+      headers: getHeaders(true),
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+      throw new Error('Unable to connect to server. Please ensure the backend is running on http://localhost:8080');
+    }
+    throw error;
+  }
+}
+
+// Cart API calls
+export async function addToCart(productId, quantity) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/buyer/cart/add`, {
+      method: 'POST',
+      headers: getHeaders(true),
+      body: JSON.stringify({ productId, quantity }),
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+      throw new Error('Unable to connect to server. Please ensure the backend is running on http://localhost:8080');
+    }
+    throw error;
+  }
+}
+
+export async function getCart() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/buyer/cart`, {
+      method: 'GET',
+      headers: getHeaders(true),
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+      throw new Error('Unable to connect to server. Please ensure the backend is running on http://localhost:8080');
+    }
+    throw error;
+  }
+}
+
+export async function updateCartItem(cartItemId, quantity) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/buyer/cart/${cartItemId}`, {
+      method: 'PUT',
+      headers: getHeaders(true),
+      body: JSON.stringify({ quantity }),
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+      throw new Error('Unable to connect to server. Please ensure the backend is running on http://localhost:8080');
+    }
+    throw error;
+  }
+}
+
+export async function removeFromCart(cartItemId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/buyer/cart/${cartItemId}`, {
+      method: 'DELETE',
+      headers: getHeaders(true),
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+      throw new Error('Unable to connect to server. Please ensure the backend is running on http://localhost:8080');
+    }
+    throw error;
+  }
+}
+
+export async function checkout() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/buyer/cart/checkout`, {
+      method: 'POST',
+      headers: getHeaders(true),
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+      throw new Error('Unable to connect to server. Please ensure the backend is running on http://localhost:8080');
+    }
+    throw error;
+  }
+}
+
 
