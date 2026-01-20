@@ -4,6 +4,7 @@ import com.ecobazaar.dto.ProductDTO;
 import com.ecobazaar.entity.User;
 import com.ecobazaar.repository.UserRepository;
 import com.ecobazaar.service.ProductService;
+import com.ecobazaar.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,6 +27,9 @@ public class AdminController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> getAdminDashboard() {
@@ -92,5 +96,44 @@ public class AdminController {
             return ResponseEntity.badRequest().body(error);
         }
     }
-}
 
+    @DeleteMapping("/products/{productId}")
+    public ResponseEntity<Map<String, Object>> deleteProduct(@PathVariable Long productId) {
+        try {
+            productService.deleteProduct(productId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Product deleted successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable Long userId) {
+        try {
+            userService.deleteUser(userId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "User deleted successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    @GetMapping("/products")
+    public ResponseEntity<List<ProductDTO>> getAllProducts() {
+        List<ProductDTO> products = productService.getAllProducts();
+        return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return ResponseEntity.ok(users);
+    }
+}

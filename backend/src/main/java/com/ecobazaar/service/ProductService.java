@@ -32,7 +32,7 @@ public class ProductService {
         product.setEcoRating(request.getEcoRating());
         product.setSellerId(sellerId);
         product.setStatus(Product.Status.PENDING);
-        
+
         // Set carbon footprint if provided, otherwise calculate based on eco rating
         if (request.getCarbonFootprint() != null) {
             product.setCarbonFootprint(request.getCarbonFootprint());
@@ -97,6 +97,20 @@ public class ProductService {
     public Product getProductEntity(Long productId) {
         return productRepository.findById(productId)
             .orElseThrow(() -> new RuntimeException("Product not found"));
+    }
+
+    public void deleteProduct(Long productId) {
+        if (!productRepository.existsById(productId)) {
+            throw new RuntimeException("Product not found");
+        }
+        productRepository.deleteById(productId);
+    }
+
+    public List<ProductDTO> getAllProducts() {
+        return productRepository.findAll()
+            .stream()
+            .map(this::convertToDTO)
+            .collect(Collectors.toList());
     }
 
     private ProductDTO convertToDTO(Product product) {

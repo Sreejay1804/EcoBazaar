@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getSellerDashboard, createProduct, getSellerProducts } from '../api';
+import { getSellerDashboard, createProduct, getSellerProducts, deleteSellerProduct } from '../api';
 import { getUsername, getRole } from '../utils/tokenUtils';
 import Profile from './Profile';
 import './Dashboard.css';
@@ -78,6 +78,17 @@ function SellerDashboard({ onLogout }) {
       await loadDashboard();
     } catch (err) {
       setFormError(err.message);
+    }
+  }
+
+  async function handleDelete(productId) {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+    try {
+      await deleteSellerProduct(productId);
+      await loadProducts();
+      await loadDashboard();
+    } catch (err) {
+      alert('Error deleting product: ' + err.message);
     }
   }
 
@@ -238,37 +249,27 @@ function SellerDashboard({ onLogout }) {
         <div className="dashboard-card">
           <h2>My Products</h2>
           {products.length === 0 ? (
-            <p>No products listed yet. Add your first product above!</p>
+            <p>No products found.</p>
           ) : (
-            <div style={{ display: 'grid', gap: '1rem' }}>
+            <div>
               {products.map((product) => (
-                <div key={product.id} style={{ 
-                  padding: '1rem', 
-                  background: '#f8fafc', 
-                  borderRadius: '0.5rem',
-                  borderLeft: `3px solid ${product.status === 'APPROVED' ? '#16a34a' : product.status === 'PENDING' ? '#f59e0b' : '#ef4444'}`
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                    <div>
-                      <h3 style={{ margin: '0 0 0.5rem' }}>{product.name}</h3>
-                      <p style={{ margin: '0 0 0.5rem', color: '#64748b' }}>{product.description || 'No description'}</p>
-                      <div style={{ display: 'flex', gap: '1rem', fontSize: '0.9rem' }}>
-                        <span>Price: ${product.price}</span>
-                        <span>Qty: {product.quantity}</span>
-                        <span>Eco Rating: {product.ecoRating}/10</span>
-                        {product.carbonFootprint && <span>CO2: {product.carbonFootprint} kg</span>}
-                      </div>
+                <div key={product.id} className="product-card">
+                  {product.imageUrl && (
+                    <img src={product.imageUrl} alt={product.name} className="product-image" onError={(e) => { e.target.style.display = 'none'; }} />
+                  )}
+                  <div className="product-details">
+                    <div className="product-title">{product.name}</div>
+                    <div className="product-description">{product.description || 'No description'}</div>
+                    <div className="product-meta">
+                      <div><strong>Price:</strong> ${product.price}</div>
+                      <div><strong>Quantity:</strong> {product.quantity}</div>
+                      <div><strong>Eco Rating:</strong> {product.ecoRating}/10</div>
+                      {product.carbonFootprint && <div><strong>CO2:</strong> {product.carbonFootprint} kg</div>}
+                      <div><strong>Status:</strong> {product.status}</div>
                     </div>
-                    <span style={{ 
-                      padding: '0.25rem 0.75rem', 
-                      borderRadius: '0.25rem',
-                      background: product.status === 'APPROVED' ? '#dcfce7' : product.status === 'PENDING' ? '#fef3c7' : '#fee2e2',
-                      color: product.status === 'APPROVED' ? '#166534' : product.status === 'PENDING' ? '#92400e' : '#991b1b',
-                      fontWeight: 600,
-                      fontSize: '0.875rem'
-                    }}>
-                      {product.status}
-                    </span>
+                    <div className="product-actions">
+                      <button onClick={() => handleDelete(product.id)} className="btn-action btn-delete">Delete</button>
+                    </div>
                   </div>
                 </div>
               ))}

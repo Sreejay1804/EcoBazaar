@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAdminDashboard, getPendingProducts, approveProduct, rejectProduct } from '../api';
+import { getAdminDashboard, getPendingProducts, approveProduct, rejectProduct, deleteAdminProduct, getAllAdminProducts, getAllAdminUsers, deleteAdminUser } from '../api';
 import { getUsername, getRole } from '../utils/tokenUtils';
 import Profile from './Profile';
 import './Dashboard.css';
@@ -8,12 +8,16 @@ function AdminDashboard({ onLogout }) {
   const [showProfile, setShowProfile] = useState(false);
   const [dashboardData, setDashboardData] = useState(null);
   const [pendingProducts, setPendingProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     loadDashboard();
     loadPendingProducts();
+    loadAllProducts();
+    loadAllUsers();
   }, []);
 
   async function loadDashboard() {
@@ -37,6 +41,24 @@ function AdminDashboard({ onLogout }) {
     }
   }
 
+  async function loadAllProducts() {
+    try {
+      const data = await getAllAdminProducts();
+      setAllProducts(data);
+    } catch (err) {
+      console.error('Error loading all products:', err);
+    }
+  }
+
+  async function loadAllUsers() {
+    try {
+      const data = await getAllAdminUsers();
+      setAllUsers(data);
+    } catch (err) {
+      console.error('Error loading all users:', err);
+    }
+  }
+
   async function handleApprove(productId) {
     try {
       await approveProduct(productId);
@@ -52,6 +74,26 @@ function AdminDashboard({ onLogout }) {
       await loadPendingProducts();
     } catch (err) {
       alert('Error rejecting product: ' + err.message);
+    }
+  }
+
+  async function handleDelete(productId) {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+    try {
+      await deleteAdminProduct(productId);
+      await loadPendingProducts();
+    } catch (err) {
+      alert('Error deleting product: ' + err.message);
+    }
+  }
+
+  async function handleDeleteUser(userId) {
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    try {
+      await deleteAdminUser(userId);
+      await loadAllUsers();
+    } catch (err) {
+      alert('Error deleting user: ' + err.message);
     }
   }
 
@@ -130,64 +172,89 @@ function AdminDashboard({ onLogout }) {
           {pendingProducts.length === 0 ? (
             <p>No pending products for approval.</p>
           ) : (
-            <div style={{ display: 'grid', gap: '1rem' }}>
+            <div>
               {pendingProducts.map((product) => (
-                <div key={product.id} style={{ 
-                  padding: '1.5rem', 
-                  background: '#f8fafc', 
-                  borderRadius: '0.5rem',
-                  border: '1px solid #e2e8f0'
-                }}>
-                  <div style={{ display: 'flex', gap: '1.5rem' }}>
-                    {product.imageUrl && (
-                      <img 
-                        src={product.imageUrl} 
-                        alt={product.name}
-                        style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '0.5rem' }}
-                        onError={(e) => { e.target.style.display = 'none'; }}
-                      />
-                    )}
-                    <div style={{ flex: 1 }}>
-                      <h3 style={{ margin: '0 0 0.5rem' }}>{product.name}</h3>
-                      <p style={{ margin: '0 0 1rem', color: '#64748b' }}>{product.description || 'No description'}</p>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem', marginBottom: '1rem', fontSize: '0.9rem' }}>
-                        <div><strong>Price:</strong> ${product.price}</div>
-                        <div><strong>Quantity:</strong> {product.quantity}</div>
-                        <div><strong>Eco Rating:</strong> {product.ecoRating}/10</div>
-                        {product.carbonFootprint && <div><strong>CO2:</strong> {product.carbonFootprint} kg</div>}
-                        <div><strong>Seller ID:</strong> {product.sellerId}</div>
-                        <div><strong>Status:</strong> {product.status}</div>
-                      </div>
-                      <div style={{ display: 'flex', gap: '1rem' }}>
-                        <button 
-                          onClick={() => handleApprove(product.id)}
-                          style={{
-                            padding: '0.75rem 1.5rem',
-                            background: '#16a34a',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '0.5rem',
-                            fontWeight: 600,
-                            cursor: 'pointer'
-                          }}
-                        >
-                          Approve
-                        </button>
-                        <button 
-                          onClick={() => handleReject(product.id)}
-                          style={{
-                            padding: '0.75rem 1.5rem',
-                            background: '#ef4444',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '0.5rem',
-                            fontWeight: 600,
-                            cursor: 'pointer'
-                          }}
-                        >
-                          Reject
-                        </button>
-                      </div>
+                <div key={product.id} className="product-card">
+                  {product.imageUrl && (
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      className="product-image"
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                  )}
+                  <div className="product-details">
+                    <div className="product-title">{product.name}</div>
+                    <div className="product-description">{product.description || 'No description'}</div>
+                    <div className="product-meta">
+                      <div><strong>Price:</strong> ${product.price}</div>
+                      <div><strong>Quantity:</strong> {product.quantity}</div>
+                      <div><strong>Eco Rating:</strong> {product.ecoRating}/10</div>
+                      {product.carbonFootprint && <div><strong>CO2:</strong> {product.carbonFootprint} kg</div>}
+                      <div><strong>Seller ID:</strong> {product.sellerId}</div>
+                      <div><strong>Status:</strong> {product.status}</div>
+                    </div>
+                    <div className="product-actions">
+                      <button
+                        onClick={() => handleApprove(product.id)}
+                        className="btn-action btn-approve"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleReject(product.id)}
+                        className="btn-action btn-reject"
+                      >
+                        Reject
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="btn-action btn-delete"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="dashboard-card">
+          <h2>All Products</h2>
+          {allProducts.length === 0 ? (
+            <p>No products found.</p>
+          ) : (
+            <div>
+              {allProducts.map((product) => (
+                <div key={product.id} className="product-card">
+                  {product.imageUrl && (
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      className="product-image"
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                  )}
+                  <div className="product-details">
+                    <div className="product-title">{product.name}</div>
+                    <div className="product-description">{product.description || 'No description'}</div>
+                    <div className="product-meta">
+                      <div><strong>Price:</strong> ${product.price}</div>
+                      <div><strong>Quantity:</strong> {product.quantity}</div>
+                      <div><strong>Eco Rating:</strong> {product.ecoRating}/10</div>
+                      {product.carbonFootprint && <div><strong>CO2:</strong> {product.carbonFootprint} kg</div>}
+                      <div><strong>Seller ID:</strong> {product.sellerId}</div>
+                      <div><strong>Status:</strong> {product.status}</div>
+                    </div>
+                    <div className="product-actions">
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="btn-action btn-delete"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -210,10 +277,36 @@ function AdminDashboard({ onLogout }) {
             )}
           </div>
         </div>
+
+        <div className="dashboard-card">
+          <h2>All Users</h2>
+          {allUsers.length === 0 ? (
+            <p>No users found.</p>
+          ) : (
+            <div>
+              {allUsers.map((user) => (
+                <div key={user.id} className="product-card" style={{flexDirection: 'column', gap: '0.5rem'}}>
+                  <div className="product-title">{user.username}</div>
+                  <div className="product-meta">
+                    <div><strong>Email:</strong> {user.email}</div>
+                    <div><strong>Role:</strong> {user.role}</div>
+                  </div>
+                  <div className="product-actions">
+                    <button
+                      onClick={() => handleDeleteUser(user.id)}
+                      className="btn-action btn-delete"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
 export default AdminDashboard;
-

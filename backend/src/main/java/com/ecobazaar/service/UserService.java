@@ -75,4 +75,11 @@ public class UserService {
 
         return new AuthResponse(token, user.getUsername(), user.getRole().name(), "Login successful");
     }
+
+    public void deleteUser(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new RuntimeException("User not found");
+        }
+        userRepository.deleteById(userId);
+    }
 }

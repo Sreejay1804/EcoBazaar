@@ -291,6 +291,22 @@ export async function rejectProduct(productId) {
   }
 }
 
+export async function deleteAdminProduct(productId) {
+  const response = await fetch(`${API_BASE_URL}/api/admin/products/${productId}`, {
+    method: 'DELETE',
+    headers: getHeaders(),
+  });
+  return handleResponse(response);
+}
+
+export async function deleteSellerProduct(productId) {
+  const response = await fetch(`${API_BASE_URL}/api/seller/products/${productId}`, {
+    method: 'DELETE',
+    headers: getHeaders(),
+  });
+  return handleResponse(response);
+}
+
 // Cart API calls
 export async function addToCart(productId, quantity) {
   try {
@@ -374,4 +390,26 @@ export async function checkout() {
   }
 }
 
+export async function getAllAdminProducts() {
+  const response = await fetch(`${API_BASE_URL}/api/admin/products`, {
+    method: 'GET',
+    headers: getHeaders(),
+  });
+  return handleResponse(response);
+}
 
+export async function getAllAdminUsers() {
+  const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
+    method: 'GET',
+    headers: getHeaders(),
+  });
+  return handleResponse(response);
+}
+
+export async function deleteAdminUser(userId) {
+  const response = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, {
+    method: 'DELETE',
+    headers: getHeaders(),
+  });
+  return handleResponse(response);
+}

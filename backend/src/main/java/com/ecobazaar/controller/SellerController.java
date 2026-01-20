@@ -99,5 +99,33 @@ public class SellerController {
         List<ProductDTO> products = productService.getProductsBySeller(sellerId);
         return ResponseEntity.ok(products);
     }
-}
 
+    @DeleteMapping("/products/{productId}")
+    public ResponseEntity<Map<String, Object>> deleteProduct(@PathVariable Long productId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isEmpty()) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("message", "Seller not found");
+            return ResponseEntity.badRequest().body(error);
+        }
+        Long sellerId = userOptional.get().getId();
+        try {
+            var product = productService.getProductEntity(productId);
+            if (!product.getSellerId().equals(sellerId)) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("message", "You can only delete your own products");
+                return ResponseEntity.status(403).body(error);
+            }
+            productService.deleteProduct(productId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Product deleted successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+}
