@@ -13,7 +13,7 @@ This project includes a complete authentication system built with Spring Boot, M
 
 ### Setup Instructions
 
-1. **Create PostgreSQL Database**
+1. **Create PostgreSQL Database**  
    ```sql
    CREATE DATABASE ecobazaar;
    ```
