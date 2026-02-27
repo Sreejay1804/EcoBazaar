@@ -1,4 +1,4 @@
-# EcoBazaar
+ # EcoBazaar
 An AI assisted carbon footprint tracking shopping assistant which analyses shopping your trends and suggests more efficent carbon footprint shopping activities     
 
 ## Backend Authentication System  
@@ -8,7 +8,7 @@ This project includes a complete authentication system built with Spring Boot, M
 ### Prerequisites 
    
 - Java 17 or higher
-- Maven 3.6+        
+- Maven 3.6+          
 - PostgreSQL 12+    
 
 ### Setup Instructions       
