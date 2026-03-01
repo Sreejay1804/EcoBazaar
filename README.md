@@ -11,7 +11,7 @@ This project includes a complete authentication system built with Spring Boot, M
 - Maven 3.6+          
 - PostgreSQL 12+    
 
-### Setup Instructions       
+### Setup Instructions        
  
 1. **Create PostgreSQL Database**  
    ```sql
