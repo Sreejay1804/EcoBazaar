@@ -5,7 +5,7 @@ An AI assisted carbon footprint tracking shopping assistant which analyses shopp
  
 This project includes a complete authentication system built with Spring Boot, Maven, Hibernate, PostgreSQL, and JWT tokens.
 
-### Prerequisites 
+### Prerequisites  
     
 - Java 17 or higher
 - Maven 3.6+          
