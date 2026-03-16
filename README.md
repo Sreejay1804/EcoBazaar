@@ -7,7 +7,7 @@ This project includes a complete authentication system built with Spring Boot, M
 
 ### Prerequisites  
     
-- Java 17 or higher
+- Java 17 or higher  
 - Maven 3.6+          
 - PostgreSQL 12+        
  
